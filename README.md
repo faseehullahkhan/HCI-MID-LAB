@@ -1,30 +1,29 @@
-# PolyLine Editor
+# PolyLine Editor — Phase 4 (Implement & Deploy)
 
-Live demo: https://YOUR_USERNAME.github.io/polyline-editor/
+**Student:** Faseehullah Khan (B23110006029)  
+**Phase:** 4 — Implement & Deploy (Figure 5.1: “Implement and deploy”)  
+**Deployed (Vercel):** <PASTE_VERCEL_URL_HERE>  
+**Repository:** <PASTE_GITHUB_REPO_URL_HERE>
 
-## My Role
-Implementation & Deployment (Phase 4)
+## What I did (my contribution)
+- Implemented the complete PolyLine Editor in HTML Canvas.
+- Ensured keyboard-driven actions match the teacher’s scenario (B, D, M, R, Q).
+- Added save/load JSON, insert point, grid snapping, and help overlay.
+- Deployed the working application on Vercel.
 
-## Features Implemented
-- Draw polylines by clicking (B to begin)
-- Delete points (D) — reconnects adjacent vertices
-- Move/drag points (M)
-- Refresh canvas (R)
-- Quit/clear (Q or X)
-- Insert point on a segment (I) [extension]
-- Save to / Load from JSON file [extension]
-- Grid snapping (10px) [extension]
-- Sidebar with polyline list and live stats
-- Keyboard shortcuts for all actions
-- Up to 100 polylines supported
+## Feature checklist (teacher scenario)
+- [ ] B begin polyline (up to 100)
+- [ ] Click add points
+- [ ] M move point (drag)
+- [ ] D delete point
+- [ ] R refresh (redraw all)
+- [ ] Q quit (web equivalent: exit/disable or clear/reset)
 
-## Tech Stack
-- Vanilla HTML5 + Canvas API + JavaScript
-- No dependencies
-- Deployed via GitHub Pages
+## Team repos
+- Requirements (Rayyan): <link>
+- Analysis (Bilal): <link>
+- Design (Muhammad Obaid Ullah): <link>
+- Implementation (me): <link>
 
-## Challenges & Confusions
-- Handling nearest-point detection efficiently across 100 polylines
-- Segment projection math for the Insert feature
-- Canvas resize handling without losing drawn state
-- Coordinating with teammates on what the UI should expose
+## Run locally
+Open `index.html` in your browser.
