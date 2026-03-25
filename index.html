@@ -312,7 +312,7 @@
   <div class="toolbar-divider"></div>
   <span class="toolbar-label">Actions</span>
   <button class="btn" onclick="finishPolyline()" title="Finish current polyline (F)"><kbd>F</kbd> Finish</button>
-  <button class="btn" onclick="undoAction()" title="Undo last action (R)"><kbd>R</kbd> Undo</button>
+  <button class="btn" onclick="undoAction()" title="Undo last action (U)"><kbd>U</kbd> Undo</button>
   <button class="btn success" onclick="saveToFile()" title="Save to JSON file (S)"><kbd>S</kbd> Save</button>
   <button class="btn" onclick="loadFromFile()" title="Load JSON file (L)"><kbd>L</kbd> Load</button>
   <button class="btn danger"  onclick="clearAll()"  title="Clear everything"><kbd>X</kbd> Clear all</button>
@@ -391,7 +391,28 @@ let activeIdx = -1;   // index of polyline being drawn
 let mode = 'draw';    // 'draw' | 'move' | 'delete' | 'insert'
 let snapEnabled = false;
 let nextId = 1;
-let historyStack = [];
+
+// ============================================================
+// UNDO SYSTEM
+// ============================================================
+let history = [];
+
+function saveState() {
+  history.push(JSON.stringify(polys));
+  if (history.length > 50) history.shift();
+}
+
+function undoAction() {
+  if (history.length === 0) {
+    setStatus('Nothing to undo.');
+    return;
+  }
+  polys = JSON.parse(history.pop());
+  activeIdx = -1;
+  updateList();
+  draw();
+  setStatus('Undo successful.');
+}
 
 // move state
 let movingPoly = -1, movingPt = -1;
@@ -667,6 +688,7 @@ canvas.addEventListener('mousedown', e => {
     if (activeIdx < 0 || polys[activeIdx].finished) {
       beginPolyline();
     }
+    saveState(); // ADD THIS
     polys[activeIdx].points.push({ x: mx, y: my });
     updateList();
     draw();
@@ -674,6 +696,7 @@ canvas.addEventListener('mousedown', e => {
   } else if (mode === 'move') {
     const n = findNearest(mx, my);
     if (n.d < 20 && n.polyIdx >= 0) {
+      saveState(); // ADD THIS
       movingPoly = n.polyIdx;
       movingPt   = n.ptIdx;
     }
@@ -681,12 +704,14 @@ canvas.addEventListener('mousedown', e => {
   } else if (mode === 'delete') {
     const n = findNearest(mx, my);
     if (n.d < 20 && n.polyIdx >= 0) {
+      saveState(); // ADD THIS
       deletePoint(n.polyIdx, n.ptIdx);
     }
 
   } else if (mode === 'insert') {
     const seg = findNearestSegment(mx, my);
     if (seg.d < 15 && seg.polyIdx >= 0) {
+      saveState(); // ADD THIs
       // Insert point after seg.afterIdx
       polys[seg.polyIdx].points.splice(seg.afterIdx + 1, 0, { x: Math.round(seg.px), y: Math.round(seg.py) });
       setStatus('Point inserted into ' + polys[seg.polyIdx].name);
@@ -713,6 +738,7 @@ canvas.addEventListener('dblclick', () => {
 // DELETE POINT
 // ============================================================
 function deletePoint(pi, ptIdx) {
+  saveState(); // ADD THIS
   const poly = polys[pi];
   if (poly.points.length <= 1) {
     // Remove entire polyline if only 1 point
@@ -729,11 +755,35 @@ function deletePoint(pi, ptIdx) {
 }
 
 // ============================================================
-// REFRESH
+// UNDO (BACKSTEP)
 // ============================================================
-function refreshCanvas() {
-  draw();
-  setStatus('Canvas refreshed.');
+function undoAction() {
+  // If currently drawing a polyline → remove last point
+  if (activeIdx >= 0 && polys[activeIdx].points.length > 0) {
+    polys[activeIdx].points.pop();
+
+    if (polys[activeIdx].points.length === 0) {
+      setStatus('Last point removed.');
+    } else {
+      setStatus('Undo: last point removed.');
+    }
+
+    updateList();
+    draw();
+    return;
+  }
+
+  // Otherwise remove last polyline
+  if (polys.length > 0) {
+    const removed = polys.pop();
+    activeIdx = -1;
+    setStatus('Undo: removed "' + removed.name + '"');
+    updateList();
+    draw();
+    return;
+  }
+
+  setStatus('Nothing to undo.');
 }
 
 // ============================================================
@@ -741,6 +791,7 @@ function refreshCanvas() {
 // ============================================================
 function clearAll() {
   if (!confirm('Clear all polylines?')) return;
+  saveState(); // ADD THIS
   polys = [];
   activeIdx = -1;
   nextId = 1;
@@ -777,6 +828,7 @@ function handleFileLoad(input) {
   const reader = new FileReader();
   reader.onload = e => {
     try {
+       saveState(); // ADD THIS
       const data = JSON.parse(e.target.result);
       if (data.polys) {
         polys = data.polys;
@@ -805,10 +857,10 @@ document.addEventListener('keydown', e => {
   if (key === 'm') setMode('move');
   if (key === 'i') setMode('insert');
   if (key === 'f') finishPolyline();
-  if (key === 'r') refreshCanvas();
+  if (key === 'u') undoAction();
   if (key === 's') saveToFile();
   if (key === 'l') loadFromFile();
-  if (key === 'x' || key === 'q') clearAll();
+  if (key === 'x' || key === 'q') undoAction();
   if (key === 'escape') setMode('draw');
 });
 
