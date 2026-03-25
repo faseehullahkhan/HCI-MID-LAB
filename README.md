@@ -2,7 +2,7 @@
 
 **Student:** Faseehullah Khan (B23110006029)  
 **Phase:** 4 — Implement & Deploy (Figure 5.1: “Implement and deploy”)  
-**Deployed (Vercel):** <PASTE_VERCEL_URL_HERE>  
+**Deployed (Vercel):** https://hci-mid-lab.vercel.app/  
 **Repository:** https://github.com/faseehullahkhan/HCI-MID-LAB.git
 
 ## What I did (my contribution)
