@@ -755,38 +755,6 @@ function deletePoint(pi, ptIdx) {
 }
 
 // ============================================================
-// UNDO (BACKSTEP)
-// ============================================================
-function undoAction() {
-  // If currently drawing a polyline → remove last point
-  if (activeIdx >= 0 && polys[activeIdx].points.length > 0) {
-    polys[activeIdx].points.pop();
-
-    if (polys[activeIdx].points.length === 0) {
-      setStatus('Last point removed.');
-    } else {
-      setStatus('Undo: last point removed.');
-    }
-
-    updateList();
-    draw();
-    return;
-  }
-
-  // Otherwise remove last polyline
-  if (polys.length > 0) {
-    const removed = polys.pop();
-    activeIdx = -1;
-    setStatus('Undo: removed "' + removed.name + '"');
-    updateList();
-    draw();
-    return;
-  }
-
-  setStatus('Nothing to undo.');
-}
-
-// ============================================================
 // CLEAR ALL
 // ============================================================
 function clearAll() {
