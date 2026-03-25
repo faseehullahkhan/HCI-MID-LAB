@@ -3,7 +3,7 @@
 **Student:** Faseehullah Khan (B23110006029)  
 **Phase:** 4 — Implement & Deploy (Figure 5.1: “Implement and deploy”)  
 **Deployed (Vercel):** <PASTE_VERCEL_URL_HERE>  
-**Repository:** <PASTE_GITHUB_REPO_URL_HERE>
+**Repository:** https://github.com/faseehullahkhan/HCI-MID-LAB.git
 
 ## What I did (my contribution)
 - Implemented the complete PolyLine Editor in HTML Canvas.
