@@ -316,6 +316,7 @@
   <button class="btn success" onclick="saveToFile()" title="Save to JSON file (S)"><kbd>S</kbd> Save</button>
   <button class="btn" onclick="loadFromFile()" title="Load JSON file (L)"><kbd>L</kbd> Load</button>
   <button class="btn danger"  onclick="clearAll()"  title="Clear everything"><kbd>X</kbd> Clear all</button>
+  <button class="btn danger" onclick="exitApp()" title="Exit program"><kbd>Q</kbd> Exit</button>
   <div class="toolbar-divider"></div>
   <span class="toolbar-label">Insert</span>
   <button class="btn" onclick="setMode('insert')" title="Insert point on segment (I)"><kbd>I</kbd> Insert pt</button>
@@ -755,6 +756,38 @@ function deletePoint(pi, ptIdx) {
 }
 
 // ============================================================
+// UNDO (BACKSTEP)
+// ============================================================
+function undoAction() {
+  // If currently drawing a polyline → remove last point
+  if (activeIdx >= 0 && polys[activeIdx].points.length > 0) {
+    polys[activeIdx].points.pop();
+
+    if (polys[activeIdx].points.length === 0) {
+      setStatus('Last point removed.');
+    } else {
+      setStatus('Undo: last point removed.');
+    }
+
+    updateList();
+    draw();
+    return;
+  }
+
+  // Otherwise remove last polyline
+  if (polys.length > 0) {
+    const removed = polys.pop();
+    activeIdx = -1;
+    setStatus('Undo: removed "' + removed.name + '"');
+    updateList();
+    draw();
+    return;
+  }
+
+  setStatus('Nothing to undo.');
+}
+
+// ============================================================
 // CLEAR ALL
 // ============================================================
 function clearAll() {
@@ -828,7 +861,8 @@ document.addEventListener('keydown', e => {
   if (key === 'u') undoAction();
   if (key === 's') saveToFile();
   if (key === 'l') loadFromFile();
-  if (key === 'x' || key === 'q') undoAction();
+  if (key === 'x') clearAll();
+  if (key === 'q') exitApp();
   if (key === 'escape') setMode('draw');
 });
 
@@ -886,6 +920,25 @@ function showToast(msg, bg) {
   setTimeout(() => t.classList.remove('show'), 2200);
 }
 
+
+function exitApp() {
+  if (!confirm('Are you sure you want to exit the program?')) return;
+
+  // Clear everything
+  polys = [];
+  activeIdx = -1;
+  nextId = 1;
+  updateList();
+  draw();
+
+  // Show exit message
+  setStatus('Program exited. Refresh page to start again.');
+
+  // Disable further interaction
+  canvas.style.pointerEvents = 'none';
+
+  showToast('Exited!', '#f46a6a');
+}
 // Init
 setMode('draw');
 setStatus('Press B to begin a new polyline, then click to add points.');
